@@ -105,7 +105,7 @@ void EXTI15_10_IRQHandler(void){ // Boton Cambiar Modo PC13
 			} else if (modo == 1) {
 				// --- MODO AUTOMÁTICO  ---
 				giros = 0;               // Reiniciamos el contador del servo
-				TIM2->CCR1 = 1000;       // Reinicio la posicion del servo a -90º
+				TIM2->CCR1 = 600;       // Reinicio la posicion del servo a -90º
 
 				// Primera medida
 				GPIOC->BSRR |= (1 << 8);
@@ -157,7 +157,7 @@ void EXTI15_10_IRQHandler(void){ // Boton Cambiar Modo PC13
 
 				if(giros < 5){ // 5 posiciones
 					// Muevo el servo al siguiente paso (+45º)
-					TIM2->CCR1 += 250;
+					TIM2->CCR1 += 450;
 
 					// Nueva medida de ultrasonidos
 					GPIOC->BSRR |= (1 << 8); // Subir Trigger
@@ -191,9 +191,30 @@ void EXTI15_10_IRQHandler(void){ // Boton Cambiar Modo PC13
 			  GPIOC->BSRR |= (1 << 2);
 			  GPIOC->BSRR |= (1 << 3);
 			  GPIOC->BSRR |= (1 << 4);
+		  }else if(distancia < 20){
+			  GPIOC->BSRR |= (1 << 0);
+			  GPIOC->BSRR |= (1 << 1);
+			  GPIOC->BSRR |= (1 << 2);
+			  GPIOC->BSRR |= (1 << 3);
+			  GPIOC->BSRR |= (1 << 4)<<16;
+		  }else if(distancia < 40){
+			  GPIOC->BSRR |= (1 << 0);
+			  GPIOC->BSRR |= (1 << 1);
+			  GPIOC->BSRR |= (1 << 2);
+			  GPIOC->BSRR |= (1 << 3)<<16;
+			  GPIOC->BSRR |= (1 << 4)<<16;
 		  }else if(distancia < 60){
 			  GPIOC->BSRR |= (1 << 0);
 			  GPIOC->BSRR |= (1 << 1);
+			  GPIOC->BSRR |= (1 << 2)<<16;
+			  GPIOC->BSRR |= (1 << 3)<<16;
+			  GPIOC->BSRR |= (1 << 4)<<16;
+		  }else if(distancia < 80){
+			  GPIOC->BSRR |= (1 << 0);
+			  GPIOC->BSRR |= (1 << 1)<<16;
+			  GPIOC->BSRR |= (1 << 2)<<16;
+			  GPIOC->BSRR |= (1 << 3)<<16;
+			  GPIOC->BSRR |= (1 << 4)<<16;
 		  }
 	}
 /* USER CODE END 0 */
@@ -373,7 +394,7 @@ int main(void)
 	TIM2->PSC = 32 - 1; // Preescalado = 32 -> f_counter=32000000/32 = 1 pasos/microsegundo
 	TIM2->CNT = 0; // Inicializo el contador a 0
 	TIM2->ARR = 20000 - 1;
-	TIM2->CCR1 = 1000;
+	TIM2->CCR1 = 1500;
 	// Seleccion de IRQ: DIER
 	TIM2->DIER = 0x0000; // No hay IRQ es PWM
 	// Modo config.
@@ -415,7 +436,7 @@ int main(void)
 			  while ((ADC1->SR&0x0002)==0); // Si EOC = 0, i.e., la conversion no
 			  // acaba, espero
 			  valor = ADC1->DR; // Cuando End of Conversion = 1, guardo el resultado y lo almaceno en valor
-			  angulo = 1000 + ((valor * 1000) / 4095); // Cálculo del DC
+			  angulo = 600 + ((valor * 1800) / 4095); // Cálculo del DC
 			  diferencia = angulo - TIM2->CCR1;
 			  if(diferencia < 0) diferencia = -diferencia;
 			  if(diferencia > 20){
