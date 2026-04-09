@@ -426,26 +426,30 @@ int main(void)
 			  break;
 			  }
 		  }
+	  if(modo_config == 0){
+		  // Empiezo la conversion
+		  ADC1->CR2 |= 0x40000000; // Cuando ADONS = 1, empiezo la conversion
+		  // (SWSTART = 1)
+		  // Espero hasta que la conversion acaba
+		  while ((ADC1->SR&0x0002)==0); // Si EOC = 0, i.e., la conversion no
+		  // acaba, espero
+		  valor = ADC1->DR; // Cuando End of Conversion = 1, guardo el resultado y lo almaceno en valor
+		  angulo = 600 + ((valor * 1800) / 4095); // Cálculo del DC
+		  diferencia = angulo - TIM2->CCR1;
+		  if(diferencia < 0) diferencia = -diferencia;
+		  if(diferencia > 20){
+			  TIM2->CCR1 = angulo;
+		  }
+		  Bin2Ascii(valor,&texto[0]);
+		  // Ensenho el resultado en Tera Term
+		  printf((uint8_t*)texto);
+		  printf("\n\r");
+	  }
+
 	  if(dato_listo == 1){
 		  if(modo_config == 0){
 			  printf("midiendo...\n\r");
-			  // Empiezo la conversion
-			  ADC1->CR2 |= 0x40000000; // Cuando ADONS = 1, empiezo la conversion
-			  // (SWSTART = 1)
-			  // Espero hasta que la conversion acaba
-			  while ((ADC1->SR&0x0002)==0); // Si EOC = 0, i.e., la conversion no
-			  // acaba, espero
-			  valor = ADC1->DR; // Cuando End of Conversion = 1, guardo el resultado y lo almaceno en valor
-			  angulo = 600 + ((valor * 1800) / 4095); // Cálculo del DC
-			  diferencia = angulo - TIM2->CCR1;
-			  if(diferencia < 0) diferencia = -diferencia;
-			  if(diferencia > 20){
-				  TIM2->CCR1 = angulo;
-			  }
-			  Bin2Ascii(valor,&texto[0]);
-			  // Ensenho el resultado en Tera Term
-			  printf((uint8_t*)texto);
-			  printf("\n\r");
+			  
 			  distancia = tiempo / 58; // Calcular distancia medida con ultrasonidos
 			  printf("Modo Manual -> Distancia: %i cm\n\r", distancia);
 			  on_off_led_distancias(distancia); // Actualizar los LEDs con la distancia actual
