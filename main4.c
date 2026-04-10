@@ -429,6 +429,7 @@ int main(void)
 		  case 1:
 			  GPIOA->BSRR |= (1 << 5);
 			  UART_Mensaje("Modo Automatico\n\r");
+			  TIM2->CCR1 = 1200; // Posición inicial del servo para el modo automático (0º)
 			 break;
 		  default:
 			  GPIOA->BSRR |= (1 << (5 + 16));
@@ -476,6 +477,7 @@ int main(void)
 					if(i != 5) UART_Mensaje(", ");
 				}
 				UART_Mensaje("] cm\r\n");
+				TIM2->CCR1 = 1200; // Reinicio la posición del servo para el modo automático (0º)
 			  }
 			  on_off_led_distancias(distancia); // Actualizar los LEDs con la distancia actual
 			  dato_listo = 0;
